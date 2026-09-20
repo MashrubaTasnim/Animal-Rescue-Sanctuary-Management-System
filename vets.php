@@ -17,7 +17,7 @@ include 'navbar.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hybrid Rescue Map | Moonlight of Heaven</title>
+    <title>Hybrid Rescue Map | Heartbeat Heaven</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
@@ -365,7 +365,6 @@ include 'navbar.php';
                         const badgeClass = isDb ? 'badge-verified' : 'badge-map';
                         const badgeLabel = isDb ? '<i class="fas fa-shield-alt me-1"></i> VERIFIED' : 'MAP DATA';
                         const btnColor   = isDb ? 'btn-success' : 'btn-dark';
-                        const imgUrl     = `https://loremflickr.com/600/400/veterinary,clinic?lock=${i}`;
 
                         const iconColor = isDb ? 'green' : 'blue';
                         const markerIcon = L.icon({
@@ -393,7 +392,7 @@ include 'navbar.php';
                             <div class="col-md-4">
                                 <div class="card clinic-card shadow-sm">
                                     <div class="clinic-img-wrapper">
-                                        <img src="${imgUrl}" class="clinic-img" alt="Clinic">
+                                        <div class="clinic-img d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#0a1329,#1e293b);"><i class="fas fa-hospital fa-3x" style="color:#B8860B;"></i></div>
                                         <span class="dist-label">${c.distance.toFixed(1)} km</span>
                                     </div>
                                     <div class="card-body p-4">

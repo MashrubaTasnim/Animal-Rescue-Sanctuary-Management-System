@@ -854,7 +854,7 @@ $resolved_count = $resolved_data['total'] + 300;
                     </div>
                     <div>
                         <h6 class="fw-bold mb-1" style="color: var(--midnight); font-size: 0.9rem;">Our Sanctuary Address</h6>
-                        <p class="text-muted small mb-0">Embankment Drive Road, Sector-10, Utttara, Dhaka-1230</p>
+                        <p class="text-muted small mb-0">Embankment Drive Road, Sector-10, Uttara, Dhaka-1230</p>
                     </div>
                 </div>
 

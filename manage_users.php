@@ -490,7 +490,7 @@ $filter_label = implode(' · ', $active_filters);
         <!-- PRINT-ONLY LEADERBOARD HEADER -->
         <div class="print-only">
             <div class="print-only-header">
-                <h3>Moonlight of Heaven &mdash; User Activity Leaderboard</h3>
+                <h3>Heartbeat Heaven &mdash; User Activity Leaderboard</h3>
                 <div class="print-meta">
                     <div style="font-weight:700;">Filter: <?= $lb_filter_label ?> &nbsp;|&nbsp; <?= $total_users_lb ?> member<?= $total_users_lb!=1?'s':'' ?></div>
                     <div id="printDateStampLb"></div>

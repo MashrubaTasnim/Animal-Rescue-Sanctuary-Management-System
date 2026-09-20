@@ -9,8 +9,32 @@ A web platform for an animal welfare foundation in Bangladesh. It connects **the
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/home.jpg" alt="Home page" width="100%">
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><b>User portal</b><br><img src="docs/screenshots/user-portal.jpg" alt="User portal"></td>
+    <td width="50%"><b>Emergency SOS form</b><br><img src="docs/screenshots/sos-form.jpg" alt="Emergency SOS form"></td>
+  </tr>
+  <tr>
+    <td width="50%"><b>Animal gallery</b><br><img src="docs/screenshots/animal-gallery.jpg" alt="Animal gallery"></td>
+    <td width="50%"><b>Finance overview</b><br><img src="docs/screenshots/finance.jpg" alt="Finance overview"></td>
+  </tr>
+  <tr>
+    <td width="50%"><b>Rescuer HQ</b><br><img src="docs/screenshots/rescuer-hq.jpg" alt="Rescuer HQ"></td>
+    <td width="50%"><b>Admin dashboard</b><br><img src="docs/screenshots/admin-dashboard.jpg" alt="Admin dashboard"></td>
+  </tr>
+</table>
+
+---
+
 ## Table of Contents
 
+- [Screenshots](#screenshots)
 - [Features](#features)
 - [How a Rescue Works](#how-a-rescue-works)
 - [Tech Stack](#tech-stack)
