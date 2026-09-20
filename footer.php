@@ -74,8 +74,6 @@
                             <a href="mailto:<?= htmlspecialchars(setting('contact_email')) ?>" class="ft-social-btn" title="Email">
                                 <i class="fas fa-envelope"></i>
                             </a>
-                        <?php else: ?>
-                            <a href="mailto:info@pranertan.org" class="ft-social-btn" title="Email"><i class="fas fa-envelope"></i></a>
                         <?php endif; ?>
                     </div>
                 </div>

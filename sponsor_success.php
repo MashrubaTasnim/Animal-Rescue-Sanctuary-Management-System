@@ -3,58 +3,60 @@
 ini_set('session.cookie_samesite', 'Lax');
 session_start();
 include 'db_config.php';
+require_once 'sslcommerz_helper.php';
 
-// Restore session if SSLCommerz killed it
-if (!isset($_SESSION['user_id']) && isset($_GET['uid'])) {
-    $uid = intval($_GET['uid']);
-    $res = $conn->query("SELECT id, full_name, email, role FROM users WHERE id=$uid");
-    if ($row = $res->fetch_assoc()) {
-        $_SESSION['user_id']  = $row['id'];
-        $_SESSION['full_name']= $row['full_name'];
-        $_SESSION['email']    = $row['email'];
-        $_SESSION['role']     = $row['role'];
-    }
-}
-
+// Nothing is trusted until SSLCommerz's validation API confirms the payment.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
 
     $status  = $_POST['status'];
-    $tran_id = $_POST['tran_id']   ?? '';
-    $method  = $_POST['card_type'] ?? 'SSLCommerz';
+    $tran_id = trim($_POST['tran_id'] ?? '');
+    $val_id  = trim($_POST['val_id']  ?? '');
 
-    if ($status === 'VALID' || $status === 'AUTHENTICATED') {
+    if (($status === 'VALID' || $status === 'AUTHENTICATED') && $tran_id !== '') {
 
-        // Update sponsorship: Pending → stays Pending (admin must approve)
-        // But mark payment as received
-        $tran_escaped = $conn->real_escape_string($tran_id);
-        $conn->query("UPDATE resident_sponsorships
-              SET payment_method = '$method',
-                  status = 'Pending',
-                  notes = 'Payment confirmed via SSLCommerz. Awaiting admin approval.'
-              WHERE payment_trx_id = '$tran_escaped'");
+        $stmt = $conn->prepare("SELECT id, user_id, monthly_amount, notes FROM resident_sponsorships WHERE payment_trx_id = ? LIMIT 1");
+        $stmt->bind_param("s", $tran_id);
+        $stmt->execute();
+        $sp = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
 
-        // Notify admin via notice
-        $conn->query("INSERT INTO notices (title, body, type, is_active)
-                      VALUES (
-                          'New Sponsorship Payment Received',
-                          'A user has completed payment for a resident animal sponsorship. Please review and approve in Finance > Sponsorships.',
-                          'success', 1
-                      )");
+        $verified = $sp ? sslc_validate($val_id, $tran_id, (float)$sp['monthly_amount']) : null;
 
-        $_SESSION['success'] = '🌟 Thank you! Your sponsorship payment was successful. Our team will activate your sponsorship within 24 hours.';
-        header('Location: animals.php');
-        exit();
+        if ($verified) {
+            $method = substr($verified['card_type'] ?? ($_POST['card_type'] ?? 'SSLCommerz'), 0, 50);
 
-    } else {
-        // Payment failed — revert sponsorship to allow retry
-        $tran_escaped = $conn->real_escape_string($tran_id);
-        $conn->query("DELETE FROM resident_sponsorships WHERE payment_trx_id='$tran_escaped' AND status='Pending'");
-        $_SESSION['error'] = 'Payment was not successful. Please try again.';
-        header('Location: animals.php');
-        exit();
+            // Mark payment as received (status stays Pending: an admin must approve).
+            // Skip if this payment was already recorded, so a refresh cannot spam the admin.
+            if (strpos((string)$sp['notes'], 'Payment confirmed') !== 0) {
+                $notes = 'Payment confirmed via SSLCommerz. Awaiting admin approval.';
+                $upd = $conn->prepare("UPDATE resident_sponsorships SET payment_method = ?, status = 'Pending', notes = ? WHERE id = ?");
+                $upd->bind_param("ssi", $method, $notes, $sp['id']);
+                $upd->execute();
+                $upd->close();
+
+                // Notify admin via notice
+                $conn->query("INSERT INTO notices (title, body, type, is_active)
+                              VALUES (
+                                  'New Sponsorship Payment Received',
+                                  'A user has completed payment for a resident animal sponsorship. Please review and approve in Finance > Sponsorships.',
+                                  'success', 1
+                              )");
+            }
+
+            // The gateway redirect drops the login cookie: log the confirmed payer back in
+            sslc_restore_session($conn, (int)$sp['user_id']);
+
+            $_SESSION['success'] = '🌟 Thank you! Your sponsorship payment was successful. Our team will activate your sponsorship within 24 hours.';
+            header('Location: animals.php');
+            exit();
+        }
     }
 
-} else {
+    // Payment failed or could not be confirmed
+    $_SESSION['error'] = 'Payment was not successful. Please try again.';
     header('Location: animals.php');
     exit();
 }
+
+header('Location: animals.php');
+exit();

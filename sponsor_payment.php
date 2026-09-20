@@ -2,6 +2,7 @@
 // sponsor_payment.php — Initiates SSLCommerz payment for sponsorship
 session_start();
 include 'db_config.php';
+require_once 'sslcommerz_helper.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php'); exit();
@@ -39,7 +40,7 @@ if ($dup && $dup->num_rows > 0) {
 }
 
 // Generate transaction ID
-$tran_id = "SP_" . uniqid();
+$tran_id = "SP_" . bin2hex(random_bytes(8));
 
 // Store pending sponsorship
 $conn->query("INSERT INTO resident_sponsorships
@@ -51,20 +52,20 @@ $conn->query("INSERT INTO resident_sponsorships
 // Get user info
 $u    = $conn->query("SELECT full_name, email, phone FROM users WHERE id=$user_id")->fetch_assoc();
 $name = $u['full_name'] ?? 'Sponsor';
-$email= $u['email']     ?? 'info@pranertan.com';
+$email= $u['email']     ?? (setting('contact_email') ?: 'noreply@example.com');
 $phone= $u['phone']     ?? '01XXXXXXXXX';
 
 // SSLCommerz API
-$base_url  = "http://localhost/Moonlight_of_Heaven/";
+$base_url  = SSLC_BASE_URL;
 $post_data = [
-    'store_id'     => 'testbox',
-    'store_passwd' => 'qwerty',
+    'store_id'     => SSLC_STORE_ID,
+    'store_passwd' => SSLC_STORE_PASS,
     'total_amount' => $amount,
     'currency'     => 'BDT',
     'tran_id'      => $tran_id,
-    'success_url'  => $base_url . 'sponsor_success.php?uid=' . $user_id,
-    'fail_url'     => $base_url . 'sponsor_fail.php?uid='    . $user_id . '&trx=' . $tran_id,
-    'cancel_url'   => $base_url . 'sponsor_cancel.php?uid='  . $user_id . '&trx=' . $tran_id,
+    'success_url'  => $base_url . 'sponsor_success.php',
+    'fail_url'     => $base_url . 'sponsor_fail.php?trx='   . $tran_id,
+    'cancel_url'   => $base_url . 'sponsor_cancel.php?trx=' . $tran_id,
     'cus_name'     => $name,
     'cus_email'    => $email,
     'cus_phone'    => $phone,
@@ -79,7 +80,7 @@ $post_data = [
 ];
 
 $handle  = curl_init();
-curl_setopt($handle, CURLOPT_URL, 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php');
+curl_setopt($handle, CURLOPT_URL, SSLC_HOST . '/gwprocess/v4/api.php');
 curl_setopt($handle, CURLOPT_TIMEOUT, 30);
 curl_setopt($handle, CURLOPT_POST, 1);
 curl_setopt($handle, CURLOPT_POSTFIELDS, http_build_query($post_data));

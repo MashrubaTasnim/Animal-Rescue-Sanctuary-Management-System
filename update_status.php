@@ -3,7 +3,7 @@ session_start();
 include 'db_config.php';
 
 /**
- * প্রাণের টান - Action Engine
+ * Heartbeat Heaven - Action Engine
  * অথেন্টিকেশন ও মেথড চেক
  */
 if (!isset($_SESSION['user_id'])) {
@@ -18,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id']) && isset($_POST
 
     // ১. রেসকিউয়ার যখন কেস একসেপ্ট করে (Approved -> In Progress)
     if ($new_status === 'In Progress') {
+        if ($user_role !== 'rescuer' && $user_role !== 'admin') die("unauthorized_role");
+
         $check = $conn->prepare("SELECT assigned_rescuer, status FROM rescues WHERE id = ?");
         $check->bind_param("i", $rescue_id);
         $check->execute();
@@ -27,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id']) && isset($_POST
             die("Already assigned to another rescuer!");
         }
 
-        if ($res['status'] !== 'Approved') {
+        if (!$res || $res['status'] !== 'Approved') {
             die("Only approved cases can be started.");
         }
 

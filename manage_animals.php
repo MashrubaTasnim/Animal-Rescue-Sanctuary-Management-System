@@ -13,7 +13,7 @@ function getSmtpSettings($conn) {
     require_once __DIR__ . '/src/PHPMailer.php';
     require_once __DIR__ . '/src/SMTP.php';
     require_once __DIR__ . '/src/Exception.php';
-    $keys = ['smtp_host','smtp_port','smtp_user','smtp_pass','smtp_secure','mail_from_name'];
+    $keys = ['smtp_host','smtp_port','smtp_username','smtp_password','smtp_secure','smtp_sender_name'];
     $placeholders = implode(',', array_fill(0, count($keys), '?'));
     $s = $conn->prepare("SELECT setting_key, setting_val FROM system_settings WHERE setting_key IN ($placeholders)");
     $s->bind_param(str_repeat('s', count($keys)), ...$keys);
@@ -32,11 +32,11 @@ function sendMail($conn, $to_email, $to_name, $subject, $body) {
         $mail->isSMTP();
         $mail->Host       = $smtp['smtp_host']   ?? 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = $smtp['smtp_user']   ?? '';
-        $mail->Password   = $smtp['smtp_pass']   ?? '';
+        $mail->Username   = $smtp['smtp_username'] ?? '';
+        $mail->Password   = $smtp['smtp_password'] ?? '';
         $mail->SMTPSecure = $smtp['smtp_secure'] ?? 'tls';
         $mail->Port       = (int)($smtp['smtp_port'] ?? 587);
-        $mail->setFrom($smtp['smtp_user'] ?? '', $smtp['mail_from_name'] ?? 'Praner Tan');
+        $mail->setFrom($smtp['smtp_username'] ?? '', $smtp['smtp_sender_name'] ?? 'Heartbeat Heaven');
         $mail->addAddress($to_email, $to_name);
         $mail->isHTML(true);
         $mail->Subject = $subject;
@@ -52,12 +52,12 @@ function emailTemplate($heading_color, $heading, $body_html) {
     return '
     <div style="font-family:Inter,sans-serif;max-width:560px;margin:auto;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
         <div style="background:#0a1329;padding:28px 32px;">
-            <h2 style="color:#B8860B;margin:0;">Praner Tan</h2>
+            <h2 style="color:#B8860B;margin:0;">Heartbeat Heaven</h2>
         </div>
         <div style="padding:32px;">
             <h3 style="color:' . $heading_color . ';margin:0 0 16px;">' . $heading . '</h3>
             ' . $body_html . '
-            <p style="color:#94a3b8;font-size:13px;margin-top:24px;">— Praner Tan Admin Team</p>
+            <p style="color:#94a3b8;font-size:13px;margin-top:24px;">— Heartbeat Heaven Admin Team</p>
         </div>
     </div>';
 }
@@ -81,7 +81,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'confirm_adoption' && isset($_G
         if ($ar && $ar->num_rows > 0) {
             $ar_row = $ar->fetch_assoc();
             sendMail($conn, $ar_row['email'], $ar_row['full_name'],
-                'Adoption Confirmed – Praner Tan',
+                'Adoption Confirmed – Heartbeat Heaven',
                 emailTemplate('#16a34a', '🎉 Adoption Confirmed!', '
                     <p>Dear <strong>' . htmlspecialchars($ar_row['full_name']) . '</strong>,</p>
                     <p>Congratulations! Your adoption of <strong>' . htmlspecialchars($ar_row['animal_name']) . '</strong> has been officially confirmed.</p>
@@ -102,7 +102,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'confirm_adoption' && isset($_G
                 $conn->query("UPDATE adoption_requests SET status = 'rejected', updated_at = NOW() WHERE id = " . $o['id']);
                 notify_adoption($o['id'], 'rejected');
                 sendMail($conn, $o['email'], $o['full_name'],
-                    'Adoption Request Update – Praner Tan',
+                    'Adoption Request Update – Heartbeat Heaven',
                     emailTemplate('#ff4d4d', 'Application Update', '
                         <p>Dear <strong>' . htmlspecialchars($o['full_name']) . '</strong>,</p>
                         <p>Unfortunately your adoption request for <strong>' . htmlspecialchars($o['animal_name']) . '</strong> was <span style="color:#ff4d4d;font-weight:700;">not selected</span> as another applicant was chosen.</p>
@@ -264,7 +264,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'decline_surrender' && isset($_
     if ($sr && $sr->num_rows > 0) {
         $s = $sr->fetch_assoc();
         sendMail($conn, $s['email'], $s['full_name'],
-            'Surrender Request Update – Praner Tan',
+            'Surrender Request Update – Heartbeat Heaven',
             emailTemplate('#ff4d4d', 'Surrender Request Update', '
                 <p>Dear <strong>' . htmlspecialchars($s['full_name']) . '</strong>,</p>
                 <p>Unfortunately we are unable to accept your pet surrender request at this time.</p>
@@ -398,7 +398,7 @@ $filter_label = implode(' · ', $active_filters);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Asset Control | Praner Tan</title>
+    <title>Asset Control | Heartbeat Heaven</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -571,7 +571,7 @@ $filter_label = implode(' · ', $active_filters);
         <!-- PRINT-ONLY HEADER -->
         <div class="print-only">
             <div class="print-only-header">
-                <h3>Praner Tan &mdash; <?= htmlspecialchars($table_title) ?></h3>
+                <h3>Heartbeat Heaven &mdash; <?= htmlspecialchars($table_title) ?></h3>
                 <div class="print-meta">
                     <div style="font-weight:700;">Internal Operations &rsaquo; Asset Management</div>
                     <?php if($filter_label): ?>

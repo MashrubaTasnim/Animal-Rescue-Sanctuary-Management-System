@@ -96,7 +96,7 @@ Animals taken directly to a clinic are reported as **At Clinic** and can be appr
 | Database | MySQL / MariaDB (`moonlight_db`) |
 | Frontend | HTML5, CSS3, JavaScript, Bootstrap 5.3, Font Awesome, Chart.js, SweetAlert2 |
 | Maps | Leaflet.js, OpenStreetMap tiles, Overpass API |
-| AI | Groq API (`llama-3.1-8b-instant`) for the chatbot and SOS triage |
+| AI | Groq API (`openai/gpt-oss-20b`) for the chatbot and SOS triage |
 | Payments | SSLCommerz payment gateway |
 | Email | PHPMailer (SMTP, configured from the admin panel) |
 | PDF | FPDF |
@@ -132,6 +132,7 @@ Animals taken directly to a clinic are reported as **At Clinic** and can be appr
 ├── finance_*.php             # Finance overview, ledger, income/expense logging, sponsorships
 ├── process_*.php             # Action handlers (SOS, adoption, surrender, login, finalization, ...)
 ├── ssl_pay.php, sponsor_*.php, payment_success.php   # SSLCommerz payment flow
+├── sslcommerz_helper.php     # SSLCommerz settings + payment validation
 ├── chat_widget.php, chat_handler.php                 # AI chatbot and team chat
 ├── generate_receipt.php      # PDF receipt generator
 ├── notifications.php, mailer.php                     # Email notifications
@@ -176,11 +177,17 @@ Animals taken directly to a clinic are reported as **At Clinic** and can be appr
    mysql -u root -p moonlight_db < database/moonlight_db.sql
    ```
 
+   Then load the default settings (site info, security policy, notification switches and empty SMTP/AI keys):
+
+   ```bash
+   mysql -u root -p moonlight_db < database/seed_settings.sql
+   ```
+
    The application expects these tables: `users`, `rescues`, `animals`, `adoption_requests`, `surrender_requests`, `donations`, `resident_sponsorships`, `funding_income`, `sanctuary_expenses`, `events`, `event_interests`, `vacancies`, `job_applications`, `vet_clinics`, `notices`, `gallery`, `testimonials`, `site_quotes`, `messages` and `system_settings`.
 
-   To inspect the live schema at any time, open `http://localhost/Moonlight_of_Heaven/db_structures.php`.
+   To inspect the live schema at any time, log in as an admin and open `http://localhost/Moonlight_of_Heaven/db_structures.php`.
 
-4. **Set your database credentials** in `db_config.php` (defaults: `localhost`, user `root`, empty password, database `moonlight_db`). `send_message.php` and `get_messages.php` open their own connection, so update them too if you change the credentials.
+4. **Set your database credentials** in `db_config.php` (defaults: `localhost`, user `root`, empty password, database `moonlight_db`).
 
 5. **Make the folders writable:** `uploads/` (with its subfolders) and `receipts/`.
 
@@ -192,7 +199,13 @@ Animals taken directly to a clinic are reported as **At Clinic** and can be appr
 
 ### Creating the first admin
 
-1. Add your SMTP details to the `system_settings` table (see [Configuration](#configuration)) — registration sends a 6-digit OTP by email.
+1. Add your email (SMTP) account — registration sends a 6-digit OTP, so it needs one. For Gmail, use an app password:
+
+   ```sql
+   UPDATE system_settings SET setting_val = 'you@gmail.com'         WHERE setting_key = 'smtp_username';
+   UPDATE system_settings SET setting_val = 'your-app-password'     WHERE setting_key = 'smtp_password';
+   ```
+
 2. Register a normal account at `register.php`. **Registration is limited to `@gmail.com` addresses.**
 3. Promote it:
 
@@ -200,7 +213,7 @@ Animals taken directly to a clinic are reported as **At Clinic** and can be appr
    UPDATE users SET role = 'admin' WHERE email = 'you@gmail.com';
    ```
 
-4. Log in — you land on the admin dashboard. Every other setting is managed from **Admin → System Settings**.
+4. Log in — you land on the admin dashboard. Everything else (site info, security policy, the Groq API key for the chatbot) is managed from **Admin → System Settings**.
 
 ---
 
@@ -220,11 +233,11 @@ Most options live in the `system_settings` table (`setting_key`, `setting_val`) 
 Create an API key at [console.groq.com](https://console.groq.com) and save it as `groq_api_key`. Never commit real keys to the repository.
 
 ### SSLCommerz (payments)
-`ssl_pay.php` and `sponsor_payment.php` ship with SSLCommerz **sandbox** test credentials and the sandbox endpoint. For production:
+All SSLCommerz settings live in `sslcommerz_helper.php` and default to the **sandbox** test store. Every payment is confirmed with SSLCommerz's validation API (transaction ID and amount are checked) before it is recorded. For production:
 
-1. Replace `store_id` / `store_passwd` with your live credentials.
-2. Switch the API URL from `sandbox.sslcommerz.com` to the live endpoint.
-3. Change `$base_url` in both files from `http://localhost/Moonlight_of_Heaven/` to your public HTTPS domain.
+1. Set `SSLC_SANDBOX` to `false`.
+2. Replace `SSLC_STORE_ID` / `SSLC_STORE_PASS` with your live credentials.
+3. Change `SSLC_BASE_URL` from `http://localhost/Moonlight_of_Heaven/` to your public HTTPS domain.
 
 ### Email (SMTP)
 PHPMailer sends OTP codes, password-reset codes and status notifications (SOS, adoption, surrender, sponsorship, job applications). Any STARTTLS SMTP provider works — for Gmail, use an app password on port `587`.
@@ -237,7 +250,9 @@ PHPMailer sends OTP codes, password-reset codes and status notifications (SOS, a
 - Session timeout and password strength rules are configurable and enforced site-wide.
 - Admin, rescuer and vet pages are protected by role checks, and admins can restrict accounts.
 - The profile page uses CSRF tokens.
-- This is a development build. Before deploying publicly: use a dedicated database user instead of `root`, serve the site over HTTPS, keep API keys and SMTP passwords out of source control, remove `db_structures.php`, and review the code paths that handle payment callbacks and file uploads.
+- Payments are only recorded after SSLCommerz's validation API confirms the transaction ID and amount, and each payment is processed once.
+- Team-chat messages are private to each visitor, and the sender is taken from the session, not from the browser.
+- This is a development build. Before deploying publicly: use a dedicated database user instead of `root`, serve the site over HTTPS, keep API keys and SMTP passwords out of source control, and switch SSLCommerz from sandbox to live credentials.
 
 ---
 

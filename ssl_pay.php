@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+require_once 'sslcommerz_helper.php';
 
 // Auth check — guests cannot initiate a payment
 if (!isset($_SESSION['user_id'])) {
@@ -16,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['amount'])) {
     if (!is_numeric($_POST['amount']) || $amount < 10) {
         die("<script>alert('Minimum donation amount is ৳10.'); window.history.back();</script>");
     }
-    $tran_id = "PT_" . uniqid(); 
+    $tran_id = "PT_" . bin2hex(random_bytes(8)); 
 
     // 1. Initial record (Pending)
     $stmt = $conn->prepare("INSERT INTO donations (user_id, method, amount, trx_id, status, created_at) VALUES (?, 'SSLCommerz', ?, ?, 'Pending', NOW())");
@@ -25,25 +26,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['amount'])) {
 
     // 2. SSLCommerz API Data
     $post_data = array();
-    $post_data['store_id'] = "testbox"; 
-    $post_data['store_passwd'] = "qwerty";
+    $post_data['store_id'] = SSLC_STORE_ID; 
+    $post_data['store_passwd'] = SSLC_STORE_PASS;
     $post_data['total_amount'] = $amount;
     $post_data['currency'] = "BDT";
     $post_data['tran_id'] = $tran_id;
 
-    // 3. Absolute URLs - uid passed so session can be restored after redirect
-    $base_url = "http://localhost/Moonlight_of_Heaven/";
-    $post_data['success_url'] = $base_url . "payment_success.php?uid=" . $user_id;
-    $post_data['fail_url']    = $base_url . "payment_fail.php?uid="    . $user_id;
-    $post_data['cancel_url']  = $base_url . "payment_cancel.php?uid="  . $user_id;
+    // 3. Absolute return URLs (the success page confirms the payment with SSLCommerz itself)
+    $base_url = SSLC_BASE_URL;
+    $post_data['success_url'] = $base_url . "payment_success.php";
+    $post_data['fail_url']    = $base_url . "donate.php?payment=failed";
+    $post_data['cancel_url']  = $base_url . "donate.php?payment=failed";
 
     // 4. Customer Info
     $post_data['cus_name']  = $_SESSION['name']  ?? "Guardian";
-    $post_data['cus_email'] = $_SESSION['email'] ?? "info@pranertan.com";
+    $post_data['cus_email'] = $_SESSION['email'] ?? (setting('contact_email') ?: "noreply@example.com");
     $post_data['cus_phone'] = "01XXXXXXXXX";
 
     // 5. Connection
-    $direct_api_url = "https://sandbox.sslcommerz.com/gwprocess/v4/api.php";
+    $direct_api_url = SSLC_HOST . "/gwprocess/v4/api.php";
 
     $handle = curl_init();
     curl_setopt($handle, CURLOPT_URL, $direct_api_url);

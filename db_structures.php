@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (($_SESSION['role'] ?? '') !== 'admin') {
+    http_response_code(403);
+    exit('Admins only.');
+}
 include 'db_config.php';
 
 // 1. Get all table names from your database

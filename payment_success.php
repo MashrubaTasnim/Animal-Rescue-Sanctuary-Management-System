@@ -1,72 +1,72 @@
 <?php
-ini_set('session.cookie_samesite', 'Lax'); 
+ini_set('session.cookie_samesite', 'Lax');
 session_start();
 include 'db_config.php';
+require_once 'sslcommerz_helper.php';
 
-// Restore session if SSLCommerz killed it
-if (!isset($_SESSION['user_id']) && isset($_GET['uid'])) {
-    $uid = intval($_GET['uid']);
-    $res = mysqli_query($conn, "SELECT id, full_name, email FROM users WHERE id = $uid");
-    if ($row = mysqli_fetch_assoc($res)) {
-        $_SESSION['user_id'] = $row['id'];
-        $_SESSION['name']    = $row['full_name'];
-        $_SESSION['email']   = $row['email'];
-    }
-}
+// SSLCommerz sends the donor back here with a POST. Nothing is recorded until
+// SSLCommerz's own validation API confirms the payment (val_id + tran_id + amount).
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['status'])) {
-    
-    $status          = $_POST['status'];
-    $tran_id         = $_POST['tran_id'];
-    $amount_paid     = $_POST['amount'];
-    $specific_method = $_POST['card_type'];
+    $status  = $_POST['status'];
+    $tran_id = trim($_POST['tran_id'] ?? '');
+    $val_id  = trim($_POST['val_id']  ?? '');
 
-    if ($status == 'VALID' || $status == 'AUTHENTICATED') {
-        
-        // 1. Update the database
-        $update_stmt = $conn->prepare("UPDATE donations SET status = 'Approved', method = ? WHERE trx_id = ?");
-        $update_stmt->bind_param("ss", $specific_method, $tran_id);
-        $update_stmt->execute();
+    if (($status === 'VALID' || $status === 'AUTHENTICATED') && $tran_id !== '') {
 
-        // ── AUTO-LOG TO FUNDING INCOME ────────────────────────
-        $don = $conn->query("SELECT id FROM donations WHERE trx_id = '" . $conn->real_escape_string($tran_id) . "' LIMIT 1");
-        if ($don && $row = $don->fetch_assoc()) {
-            require_once 'finance_auto_hooks.php';
-            autoSyncDonation($conn, $row['id']);
-        }
-        // ─────────────────────────────────────────────────────
+        $stmt = $conn->prepare("SELECT id, user_id, amount, status, receipt_path FROM donations WHERE trx_id = ? LIMIT 1");
+        $stmt->bind_param("s", $tran_id);
+        $stmt->execute();
+        $don = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
 
-        // ── GENERATE RECEIPT PDF ──────────────────────────────
-        $receipt_path = null;
-        try {
-            require_once 'generate_receipt.php';
-            $receipt_path = generateDonationReceipt($conn, $tran_id);
+        $verified = $don ? sslc_validate($val_id, $tran_id, (float)$don['amount']) : null;
 
-            if ($receipt_path) {
-                // Save the receipt path to the donations table
-                // (Add column if missing: ALTER TABLE donations ADD COLUMN receipt_path VARCHAR(255) NULL;)
-                $rStmt = $conn->prepare("UPDATE donations SET receipt_path = ? WHERE trx_id = ?");
-                $rStmt->bind_param("ss", $receipt_path, $tran_id);
-                $rStmt->execute();
+        if ($verified) {
+            $specific_method = substr($verified['card_type'] ?? ($_POST['card_type'] ?? 'SSLCommerz'), 0, 20);
+            $amount_paid     = $don['amount'];
+            $receipt_path    = $don['receipt_path'] ?: null;
+
+            // Process each payment only once (a refresh or replay must not double-count it)
+            if ($don['status'] !== 'Approved') {
+
+                // 1. Update the database
+                $update_stmt = $conn->prepare("UPDATE donations SET status = 'Approved', method = ? WHERE trx_id = ?");
+                $update_stmt->bind_param("ss", $specific_method, $tran_id);
+                $update_stmt->execute();
+
+                // AUTO-LOG TO FUNDING INCOME
+                require_once 'finance_auto_hooks.php';
+                autoSyncDonation($conn, $don['id']);
+
+                // GENERATE RECEIPT PDF
+                try {
+                    require_once 'generate_receipt.php';
+                    $receipt_path = generateDonationReceipt($conn, $tran_id);
+
+                    if ($receipt_path) {
+                        $rStmt = $conn->prepare("UPDATE donations SET receipt_path = ? WHERE trx_id = ?");
+                        $rStmt->bind_param("ss", $receipt_path, $tran_id);
+                        $rStmt->execute();
+                    }
+                } catch (Throwable $e) {
+                    // Receipt failure should NOT block the success redirect
+                    error_log('Receipt generation failed for ' . $tran_id . ': ' . $e->getMessage());
+                }
             }
-        } catch (Throwable $e) {
-            // Receipt failure should NOT block the success redirect
-            error_log('Receipt generation failed for ' . $tran_id . ': ' . $e->getMessage());
+
+            // The gateway redirect drops the login cookie: log the confirmed payer back in
+            sslc_restore_session($conn, (int)$don['user_id']);
+
+            $receipt_flag = $receipt_path ? '&receipt=1&trx=' . urlencode($tran_id) : '';
+            header("Location: donate.php?payment=success&amt=" . urlencode($amount_paid) . "&method=" . urlencode($specific_method) . $receipt_flag);
+            exit();
         }
-        // ─────────────────────────────────────────────────────
-
-        // 2. Redirect to donate.php with success parameters
-        //    Pass receipt flag so donate.php can show the download button
-        $receipt_flag = $receipt_path ? '&receipt=1&trx=' . urlencode($tran_id) : '';
-        header("Location: donate.php?payment=success&amt=" . $amount_paid . "&method=" . urlencode($specific_method) . $receipt_flag);
-        exit();
-
-    } else {
-        header("Location: donate.php?payment=failed");
-        exit();
     }
 
-} else {
-    header("Location: donate.php");
+    header("Location: donate.php?payment=failed");
     exit();
 }
+
+header("Location: donate.php");
+exit();

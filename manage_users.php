@@ -142,7 +142,7 @@ $filter_label = implode(' · ', $active_filters);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Directory | Praner Tan</title>
+    <title>User Directory | Heartbeat Heaven</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -457,7 +457,7 @@ $filter_label = implode(' · ', $active_filters);
         <!-- PRINT-ONLY HEADER -->
         <div class="print-only">
             <div class="print-only-header">
-                <h3>Praner Tan &mdash; User Directory: <?= $meta['title'] ?></h3>
+                <h3>Heartbeat Heaven &mdash; User Directory: <?= $meta['title'] ?></h3>
                 <div class="print-meta">
                     <div style="font-weight:700;">Security & Access &rsaquo; <?= $meta['title'] ?></div>
                     <?php if($filter_label): ?>

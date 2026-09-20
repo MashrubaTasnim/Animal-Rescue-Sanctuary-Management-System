@@ -768,9 +768,9 @@ if ($user_id) {
                             <ul>
                                 <li><strong>No-Kill Policy:</strong> You agree never to euthanize the animal except in cases of terminal illness under veterinary guidance.</li>
                                 <li><strong>Indoor-Only Policy:</strong> The animal must be kept safely indoors at all times.</li>
-                                <li><strong>Return Policy:</strong> If you can no longer care for the pet, it <strong>MUST</strong> be returned to Praner Tan — not given away or abandoned.</li>
+                                <li><strong>Return Policy:</strong> If you can no longer care for the pet, it <strong>MUST</strong> be returned to Heartbeat Heaven — not given away or abandoned.</li>
                                 <li><strong>Veterinary Care:</strong> You commit to providing regular veterinary checkups and necessary medical care.</li>
-                                <li><strong>Right to Visit:</strong> Praner Tan reserves the right to conduct welfare checks within the first 6 months.</li>
+                                <li><strong>Right to Visit:</strong> Heartbeat Heaven reserves the right to conduct welfare checks within the first 6 months.</li>
                             </ul>
                         </div>
                         <div class="d-flex align-items-start gap-3" style="background:#fffbeb;border-radius:12px;padding:14px;border:1px solid #fde68a;">
@@ -780,7 +780,7 @@ if ($user_id) {
                                    onchange="document.getElementById('submitBtn<?= $aid ?>').disabled = !this.checked"
                                    required>
                             <label for="terms<?= $aid ?>" style="font-size:.8rem;font-weight:700;color:var(--navy);cursor:pointer;">
-                                I have read and agree to all Praner Tan Adoption Standards. I understand this is a lifetime commitment.
+                                I am 18 or older, and I have read and agree to all Heartbeat Heaven Adoption Standards. I understand this is a lifetime commitment.
                             </label>
                         </div>
                     </div>

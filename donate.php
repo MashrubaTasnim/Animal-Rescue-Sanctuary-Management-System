@@ -3,24 +3,15 @@ ini_set('session.cookie_samesite', 'Lax');
 session_start();
 require_once 'auth_helper.php';
 
-$paymentSuccess = (isset($_GET['payment']) && $_GET['payment'] === 'success');
+// The payment gateway sends people back here after paying (or failing).
+// Show the result even if their login cookie was dropped on the way back.
+$paymentDone = isset($_GET['payment']) && in_array($_GET['payment'], ['success', 'failed'], true);
 
-// Restore session if SSLCommerz killed it on redirect back
-if ($paymentSuccess && !isset($_SESSION['user_id']) && isset($_GET['uid'])) {
-    include 'db_config.php';
-    $uid = intval($_GET['uid']);
-    $res = mysqli_query($conn, "SELECT id, name FROM users WHERE id = $uid");
-    if ($row = mysqli_fetch_assoc($res)) {
-        $_SESSION['user_id'] = $row['id'];
-        $_SESSION['name']    = $row['name'];
-    }
-}
-
-if (!$paymentSuccess) {
+if (!$paymentDone) {
     require_login('Please login or register to donate and support our mission.');
 }
 
-if (!$paymentSuccess && !isset($_SESSION['user_id'])) {
+if (!$paymentDone && !isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }

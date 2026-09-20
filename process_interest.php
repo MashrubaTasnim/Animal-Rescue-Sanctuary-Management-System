@@ -25,7 +25,7 @@ if ($check->num_rows > 0) {
     $status = "registered";
 }
 
-// Get the fresh count for the Praner Tan community badge
+// Get the fresh count for the Heartbeat Heaven community badge
 $count_query = $conn->query("SELECT COUNT(*) as total FROM event_interests WHERE event_id = $event_id");
 $new_count = $count_query->fetch_assoc()['total'];
 

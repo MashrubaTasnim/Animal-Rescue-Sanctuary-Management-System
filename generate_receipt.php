@@ -247,7 +247,7 @@ class ReceiptPDF extends FPDF
         $this->SetFont('Helvetica', '', 7.5);
         $this->SetTextColor(...$this->muted);
         $this->MultiCell(160, 4.5,
-            'This receipt confirms your donation to Heartbeat Heaven (Praner Tan). ' .
+            'This receipt confirms your donation to Heartbeat Heaven. ' .
             'Please retain this document for your records. ' .
             'Heartbeat Heaven is a non-profit animal welfare organisation.', 0, 'L');
 

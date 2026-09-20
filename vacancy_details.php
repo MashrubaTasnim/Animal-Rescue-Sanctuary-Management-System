@@ -48,7 +48,7 @@ if (isset($_POST['submit_application']) && $u_id) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($job['title']); ?> | Praner Tan</title>
+    <title><?php echo htmlspecialchars($job['title']); ?> | Heartbeat Heaven</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -82,7 +82,7 @@ if (isset($_POST['submit_application']) && $u_id) {
 <header class="details-header text-center">
     <div class="container">
         <h2 class="display-5 fw-bold"><?php echo htmlspecialchars($job['title']); ?></h2>
-        <p class="lead" style="font-family:'Playfair Display',serif;font-style:italic;">Praner Tan Animal Welfare Foundation</p>
+        <p class="lead" style="font-family:'Playfair Display',serif;font-style:italic;">Heartbeat Heaven Animal Welfare Foundation</p>
     </div>
 </header>
 

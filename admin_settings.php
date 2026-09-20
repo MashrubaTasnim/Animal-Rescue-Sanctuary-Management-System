@@ -111,7 +111,7 @@ $view = $_GET['view'] ?? 'general';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>System Settings | Praner Tan</title>
+    <title>System Settings | Heartbeat Heaven</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -398,7 +398,7 @@ $view = $_GET['view'] ?? 'general';
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Site Name</label>
-                            <input type="text" name="site_name" class="form-control" value="<?= s('site_name', $settings, 'Praner Tan') ?>">
+                            <input type="text" name="site_name" class="form-control" value="<?= s('site_name', $settings, 'Heartbeat Heaven') ?>">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Tagline</label>
@@ -494,7 +494,7 @@ $view = $_GET['view'] ?? 'general';
                         </div>
                         <div class="col-12">
                             <label class="form-label">Sender Display Name</label>
-                            <input type="text" name="smtp_sender_name" class="form-control" value="<?= s('smtp_sender_name', $settings, 'Praner Tan') ?>">
+                            <input type="text" name="smtp_sender_name" class="form-control" value="<?= s('smtp_sender_name', $settings, 'Heartbeat Heaven') ?>">
                             <div class="form-hint">This name appears in the "From" field of all system emails.</div>
                         </div>
                         <div class="col-12 mt-2">

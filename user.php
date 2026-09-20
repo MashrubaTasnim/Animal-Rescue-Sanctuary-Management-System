@@ -865,7 +865,7 @@ $user_name = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : "Guardian"
                         <input type="checkbox" class="sdr-checkbox">
                         <div class="sdr-check-text">
                             <strong>I understand this is a permanent decision</strong>
-                            <span>Once surrendered, ownership transfers to Praner Tan shelter.</span>
+                            <span>Once surrendered, ownership transfers to Heartbeat Heaven shelter.</span>
                         </div>
                     </div>
 

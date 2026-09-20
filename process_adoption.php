@@ -42,9 +42,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_adoption'])) {
     if (!preg_match('/^[0-9]{11}$/', $phone)) {
     die("Invalid phone number.");
 }
-if (!is_numeric($applicant_age) || $applicant_age < 18) {
-    die("You must be 18 or older to adopt.");
-}
 
     // ── Prevent duplicate pending requests ────────────────────────────────────
     $check = $conn->query("SELECT id FROM adoption_requests
