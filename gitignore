@@ -1,0 +1,29 @@
+# ── User-generated content (photos, videos, receipts) ──────────────
+# Keep the folders in the repo, but not what users upload.
+uploads/*
+!uploads/.gitkeep
+receipts/*
+!receipts/.gitkeep
+
+# ── Archives / backups ─────────────────────────────────────────────
+*.zip
+*.rar
+*.7z
+*.bak
+*.sql.gz
+
+# ── Secrets & local config ─────────────────────────────────────────
+.env
+*.local.php
+
+# ── Logs ───────────────────────────────────────────────────────────
+*.log
+error_log
+
+# ── OS / editor files ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp

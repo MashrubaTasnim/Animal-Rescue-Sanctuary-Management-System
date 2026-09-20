@@ -20,8 +20,7 @@ if (empty($userMsg)) {
 }
 
 // Pull API key from settings, fallback to hardcoded for safety
-$apiKey = setting('groq_api_key', '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');
-
+$apiKey = setting('groq_api_key', '');
 if (empty($apiKey)) {
     echo json_encode(['error' => setting('chatbot_fallback_message', 'AI service is not configured yet.')]);
     exit;
