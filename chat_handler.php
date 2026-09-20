@@ -5,10 +5,19 @@ include 'db_config.php'; // Loads setting() helper
 
 header('Content-Type: application/json');
 
+// Set to true to see the real reason the chatbot fails, then set back to false.
+$DEBUG = false;
+
+function chat_fail($debug, $why) {
+    global $DEBUG;
+    $fallback = setting('chatbot_fallback_message', 'Sorry, I could not process your request.');
+    echo json_encode(['error' => $DEBUG ? "DEBUG: $why" : $fallback]);
+    exit;
+}
+
 // Check if chatbot is enabled from Admin Settings
 if (setting('chatbot_enabled', '1') !== '1') {
-    echo json_encode(['error' => setting('chatbot_fallback_message', 'The chatbot is currently unavailable.')]);
-    exit;
+    chat_fail($DEBUG, 'chatbot_enabled is OFF in System Settings.');
 }
 
 $inputData = json_decode(file_get_contents('php://input'), true);
@@ -19,11 +28,11 @@ if (empty($userMsg)) {
     exit;
 }
 
-// Pull API key from settings, fallback to hardcoded for safety
-$apiKey = setting('groq_api_key', '');
+// API key comes only from Admin -> System Settings (never hardcode it here)
+$apiKey = trim(setting('groq_api_key', ''));
+
 if (empty($apiKey)) {
-    echo json_encode(['error' => setting('chatbot_fallback_message', 'AI service is not configured yet.')]);
-    exit;
+    chat_fail($DEBUG, 'groq_api_key is empty in the system_settings table.');
 }
 
 // Pull system prompt from settings or use default
@@ -37,16 +46,11 @@ $systemPrompt = setting(
 $url = "https://api.groq.com/openai/v1/chat/completions";
 
 $payload = [
-    "model"    => "llama-3.1-8b-instant",
-    "messages" => [
-        [
-            "role"    => "system",
-            "content" => $systemPrompt
-        ],
-        [
-            "role"    => "user",
-            "content" => $userMsg
-        ]
+    "model"            => "openai/gpt-oss-20b",
+    "reasoning_effort" => "low",
+    "messages"         => [
+        ["role" => "system", "content" => $systemPrompt],
+        ["role" => "user",   "content" => $userMsg]
     ]
 ];
 
@@ -63,17 +67,20 @@ curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 
 $response = curl_exec($ch);
 $err      = curl_error($ch);
+$code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 if ($err) {
     echo json_encode(['error' => 'Connection error: ' . $err]);
+    exit;
+}
+
+$decoded = json_decode($response, true);
+
+if (isset($decoded['choices'][0]['message']['content'])) {
+    echo json_encode(['reply' => $decoded['choices'][0]['message']['content']]);
 } else {
-    $decoded = json_decode($response, true);
-    if (isset($decoded['choices'][0]['message']['content'])) {
-        echo json_encode(['reply' => $decoded['choices'][0]['message']['content']]);
-    } else {
-        // Return fallback message if unexpected response
-        echo json_encode(['error' => setting('chatbot_fallback_message', 'Sorry, I could not process your request.')]);
-    }
+    $why = $decoded['error']['message'] ?? 'Unexpected response from Groq.';
+    chat_fail($DEBUG, "Groq replied HTTP $code: $why");
 }
 ?>

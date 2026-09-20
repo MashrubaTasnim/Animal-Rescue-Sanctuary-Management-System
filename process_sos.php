@@ -58,13 +58,14 @@ Rescue Report: \"$description\"
 Reply with ONLY the number (1, 2, 3, 4, or 5). No explanation.";
 
     $payload = [
-        "model"       => "llama-3.1-8b-instant",
-        "messages"    => [
+        "model"                 => "openai/gpt-oss-20b",
+        "messages"              => [
             ["role" => "system", "content" => "You are an animal emergency triage AI. You only respond with a single integer from 1 to 5."],
             ["role" => "user",   "content" => $prompt]
         ],
-        "max_tokens"  => 5,
-        "temperature" => 0
+        "reasoning_effort"      => "low",
+        "max_completion_tokens" => 300,
+        "temperature"           => 0
     ];
 
     $ch = curl_init("https://api.groq.com/openai/v1/chat/completions");
