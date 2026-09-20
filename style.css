@@ -1,0 +1,306 @@
+/* --- 1. DESIGN VARIABLES --- */
+:root {
+    --midnight: #0a1329;       /* Deep Navy Base */
+    --moonlight: #ffefc2;      /* Golden Glow Accents */
+    --cloud-blue: #94a7cb;     /* Ethereal Blue Text */
+    --deep-glass: rgba(10, 19, 41, 0.95); /* High-Opacity Glass */
+    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* 1. Show dropdown on mouse hover (Desktop only) */
+@media (min-width: 992px) {
+    .navbar-nav .nav-item.dropdown:hover > .dropdown-menu {
+        display: block;
+        margin-top: 0; 
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+    
+    .dropdown-menu {
+        display: block;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+    }
+}
+
+/* --- 1. KILL MOVING UNDERLINES --- */
+.navbar-nav .nav-item .clean-link::after,
+.navbar-nav .nav-item .profile-fix::after,
+.navbar-nav .nav-item .dropdown-toggle::after {
+    display: none !important; 
+    content: none !important;
+}
+
+.clean-link, .profile-fix {
+    border-bottom: none !important;
+    position: relative;
+    text-decoration: none !important;
+}
+
+/* --- 2. HOVER DROPDOWN LOGIC --- */
+@media (min-width: 992px) {
+    .hover-dropdown:hover > .dropdown-menu {
+        display: block;
+        margin-top: 0; 
+    }
+    .hover-dropdown > .dropdown-toggle:active {
+        pointer-events: none;
+    }
+}
+
+/* --- 3. PROFILE BUTTON STYLING --- */
+.profile-fix {
+    border: 1px solid #ffc107 !important;
+    border-radius: 8px !important;
+    background: transparent;
+    transition: 0.3s ease;
+}
+
+.profile-fix:hover {
+    background: #ffc107 !important;
+    color: #000 !important;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
+/* --- 1. KILL ALL NAV UNDERLINES --- */
+.navbar-nav .nav-link::after,
+.navbar-nav .nav-item .clean-link::after,
+.navbar-nav .nav-item .profile-fix::after {
+    display: none !important;
+    content: none !important;
+    width: 0 !important;
+}
+
+.nav-link, .clean-link {
+    border: none !important;
+    text-decoration: none !important;
+}
+
+/* --- 2. PROFILE BUTTON (NO UNDERLINE) --- */
+.profile-fix {
+    border: 1px solid #ffc107 !important;
+    background: transparent !important;
+    transition: all 0.3s ease;
+}
+
+.profile-fix:hover {
+    background: #ffc107 !important;
+    color: #000 !important;
+}
+
+/* --- 3. HOVER DROPDOWN BEHAVIOR --- */
+@media (min-width: 992px) {
+    .hover-dropdown:hover > .dropdown-menu {
+        display: block;
+        margin-top: 0;
+    }
+}
+
+/* --- 4. ANIMATION --- */
+.animate { animation-duration: 0.2s; animation-fill-mode: both; }
+@keyframes slideIn {
+    0% { transform: translateY(10px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+.slideIn { animation-name: slideIn; }
+
+.dropdown-toggle::after {
+    transition: transform 0.3s ease;
+}
+
+.nav-item.dropdown:hover .dropdown-toggle::after {
+    transform: rotate(180deg);
+}
+
+.dropdown-item:hover {
+    background-color: #ffefc2 !important;
+    color: #0a1329 !important;
+    padding-left: 1.5rem; 
+    transition: all 0.2s;
+}
+
+/* --- 2. GLOBAL STYLES --- */
+body { 
+    font-family: 'Montserrat', sans-serif; 
+    background-color: #f6f8fb; 
+    margin: 0; 
+    color: var(--midnight); 
+    overflow-x: hidden;
+}
+
+h1, h2, h3, .hero-title { 
+    font-family: 'Playfair Display', serif !important; 
+}
+
+/* --- 3. NAVIGATION (DEEP GLASSMORHPISM) --- */
+#pt-navbar-root .dropdown-menu {
+    z-index: 9999 !important; 
+    background-color: #0a1329 !important;
+}
+
+.navbar { 
+    background: var(--deep-glass) !important; 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 2px solid rgba(255, 239, 194, 0.2); 
+    padding: 10px 0 !important; 
+    min-height: 90px; 
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    transition: var(--transition);
+}
+
+/* লোগো ও মেনু দুই কিনার থেকে সমান দূরত্বে রাখার জন্য */
+#pt-navbar-root .navbar > .container {
+    max-width: 100% !important;
+    padding-left: 60px !important;
+    padding-right: 60px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.navbar-brand { 
+    display: flex; 
+    align-items: center; 
+    text-decoration: none;
+}
+
+.navbar-brand img { 
+    height: 70px; 
+    width: auto; 
+    margin-right: 18px;
+    filter: drop-shadow(0 0 10px rgba(255, 239, 194, 0.15));
+} 
+
+.brand-text-block {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+}
+
+.brand-text-block h1 { 
+    color: #ffffff !important; 
+    font-family: 'Cinzel', serif !important; 
+    font-weight: 700 !important; 
+    font-size: 1.8rem !important; 
+    margin: 0 !important; 
+    letter-spacing: 2px !important;
+    text-transform: uppercase !important; 
+    line-height: 1;
+    font-style: italic !important; /* ইটালিক রিস্টোর করা হলো */
+}
+
+.brand-text-block p { 
+    color: var(--moonlight); 
+    font-size: 0.7rem; 
+    margin: 0; 
+    text-transform: uppercase; 
+    letter-spacing: 2.5px; 
+    font-weight: 600;
+}
+
+.nav-link { 
+    color: #ffffff !important; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+    font-size: 0.75rem; 
+    margin-left: 25px; 
+    letter-spacing: 1px;
+    transition: var(--transition);
+    position: relative;
+}
+
+/* --- 4. HERO SECTION --- */
+/* --- 4. HERO SECTION RESTORATION --- */
+.hero-title { 
+    font-family: 'Playfair Display', serif !important; /* তোমার অরিজিনাল ফন্ট */
+    font-size: clamp(2.5rem, 8vw, 4.5rem) !important; /* রেসপন্সিভ বড় সাইজ */
+    font-style: italic !important; /* হিরো সেকশনের সেই সিগনেচার ইটালিক লুক */
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    color: #ffffff !important;
+    text-transform: none !important; /* হিরো টাইটেল সাধারণত সব ক্যাপিটাল হয় না */
+}
+
+/* হিরো সেকশনের সাব-টেক্সট যদি থাকে */
+.hero-wrap {
+    height: 100vh;
+    background: linear-gradient(rgba(10, 19, 41, 0.75), rgba(10, 19, 41, 0.5)), 
+                url('https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&q=80&w=2000');
+    background-size: cover; 
+    background-position: center;
+    background-attachment: fixed; 
+    display: flex; 
+    align-items: center; 
+    color: white; 
+    margin-top: -100px; 
+     font-family: 'Montserrat', sans-serif !important;
+    font-size: 1.2rem !important;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+/* --- 5. CARDS & UI ELEMENTS --- */
+.card-custom { 
+    border: none; 
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px rgba(10, 19, 41, 0.05); 
+    transition: var(--transition); 
+    background: white; 
+}
+
+/* --- 6. FOOTER --- */
+.footer-section {
+    background-color: var(--midnight);
+    color: var(--cloud-blue);
+    padding: 80px 0 40px;
+}
+
+/* --- 7. ULTIMATE NAVBAR & MODAL FIX --- */
+
+/* মোডালকে নাভবারের উপরে আনা */
+body.modal-open { padding-right: 0 !important; }
+.modal { z-index: 10001 !important; }
+.modal-backdrop { z-index: 10000 !important; }
+
+/* নাভবার গ্লো ও শ্যাডো */
+#pt-navbar-root .navbar {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ব্র্যান্ডিং ইটালিক লক */
+#pt-navbar-root .brand-text-block h1 {
+    font-family: 'Cinzel', serif !important;
+    font-style: italic !important;
+    text-transform: uppercase !important;
+}
+/* Hide Google Translate toolbar */
+.goog-te-banner-frame,
+.skiptranslate { display: none !important; }
+body { top: 0 !important; }
+.goog-te-gadget { display: none !important; }
+/* ── Kill Google Translate top bar ─────────────────────── */
+body {
+    top: 0 !important;
+    position: static !important;
+}
+
+.goog-te-banner-frame.skiptranslate {
+    display: none !important;
+}
+
+iframe.goog-te-banner-frame {
+    display: none !important;
+}
+
+.skiptranslate {
+    display: none !important;
+}
+html {
+    background-color: #0a1329;
+}
