@@ -25,14 +25,14 @@
                         <span class="ft-contact-icon"><i class="fas fa-user-shield"></i></span>
                         <div>
                             <span class="ft-contact-label">Lead Rescuer</span>
-                            <a href="tel:+880 1407893956" class="ft-contact-value">+880 1407893956</a>
+                            <a href="tel:+8801XXXXXXXXX" class="ft-contact-value">+880 1XXX-XXXXXX</a>
                         </div>
                     </div>
                     <div class="ft-contact-item">
                         <span class="ft-contact-icon"><i class="fas fa-moon"></i></span>
                         <div>
                             <span class="ft-contact-label">Night Logistics</span>
-                            <a href="tel:+8801938262081" class="ft-contact-value">+880 1938262081</a>
+                            <a href="tel:+8801XXXXXXXXX" class="ft-contact-value">+880 1XXX-XXXXXX</a>
                         </div>
                     </div>
                 </div>
@@ -116,7 +116,7 @@
             <p class="ft-copyright">
                 &copy; <?= date('Y') ?>
                 <span class="ft-copyright-name"><?= htmlspecialchars(setting('site_name', 'Heartbeat Heaven')) ?></span>
-                &mdash; Designed with 🐾 by <strong>Softdeft</strong>
+                &mdash; Designed with 🐾 by <strong>Mashruba Tasnim</strong>
             </p>
         </div>
 
